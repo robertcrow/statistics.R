@@ -1,22 +1,29 @@
 score <- function(a, b){
   
-  stopifnot(length(a) == length(b))
-  stopifnot(assertthat::is.string(a));
+  #stopifnot(length(a) == length(b))
+  stopifnot(is.character(a));
   stopifnot(assertthat::is.string(b));
-  
-  tmp1 = strsplit(a, split="");
-  tmp2 = strsplit(b, split="");
-  
-  
-  tmp1 = unlist(tmp1);
-  tmp2 = unlist(tmp2);
-  
-  nmatches<-sum(tmp1==tmp2);
-  nchar = length(tmp1);
+  n_strings = length(a);
+  coverage = rep(0, n_strings);
   
   
-  coverage = nmatches / nchar;
-  
+  for (i in 1:n_strings){
+    
+    a_tmp = a[i];
+    
+    tmp1 = strsplit(a_tmp, split="");
+    tmp2 = strsplit(b, split="");
+    
+    tmp1 = unlist(tmp1);
+    tmp2 = unlist(tmp2);
+    
+    nmatches<-sum(tmp1==tmp2);
+    nchar = length(tmp1);
+    
+    coverage[i] = nmatches / nchar;
+    
+  }
+
   return(coverage)
   
 }
