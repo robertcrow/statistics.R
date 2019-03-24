@@ -4,8 +4,11 @@ generation <- function(curBest, target, FUN1 = mutate, FUN2 = score, population)
   mutations = mutate(curBest);
   cur_score = score(mutations, target);
   bestScore = max(cur_score);
-  newBest = mutations[cur_score == bestScore]
+  bestFits = mutations[cur_score == bestScore];
   
-  return(newBest)
+  newBest = bestFits[sample(1:length(bestFits),1)]
+  output <- list("newBest" = newBest, "bestScore" = bestScore)
+  
+  return(output)
   
 }

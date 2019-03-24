@@ -2,7 +2,7 @@ score <- function(a, b){
   
   #stopifnot(length(a) == length(b))
   stopifnot(is.character(a));
-  stopifnot(assertthat::is.string(b));
+  stopifnot(is.character(b));
   n_strings = length(a);
   coverage = rep(0, n_strings);
   
