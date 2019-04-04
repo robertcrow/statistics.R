@@ -1,0 +1,28 @@
+specjalny typ listy - dataframe
+dataframe(1:3, 3:1)
+letters 'a', 'b'
+data.frame(1:3, letters[1:3])
+jest kilka wbudowanych datasetow, miedzy innymi iris
+jak rozmiary platkow wplywaja na gatunek irysa
+data.frame(a=1:3, b=3:1)
+names() - nazwy wierszy, tez mozna wykorzystywac do indeksowania
+order( , , ,) - sortowanie - zwraca indeks w kolejnosci rosnacej
+tapply(x, t, f(x)...) - t powinien byc factor, x wektor,
+mapply(f(x), v1, v2, v3)
+do.call(f, list)
+modul I/O ma swoj format zapisu danych Rdata/RDS
+RDS zawiera jeden obiekt, np jedna liste, jeden wektor
+Rdata zapisuje cale powiedzmy srodowiska, czyli mozemy sobie zapisac trzy zmienne a,b,c i potem te trzy zmienne sie pojawia
+do Rdaty -> save(z1, z2, z3, file = "*.Rdata")
+load("*.Rdata")
+saveRDS(x, "*.RDS")
+readRDS("*.RDS") -> x
+write.table / w...csv / w....csv2
+read.table / r...csv / r ...csv2
+readLines("*.txt") - wczytywanie plikow tesktowych, wynikiem jest wektor wszystkich linii
+writeLines(x)
+sink("a.out") save.hisory()
+source("f.R")
+dput(x) - wyswietli w stdout kod ktory odtwarza strukture
+traceback() - funkcja na bledy
+browser() - wbudowany debugger
