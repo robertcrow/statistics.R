@@ -1,15 +1,49 @@
-# library("mlbench", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.2")
+#library("mlbench", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.2")
 # rows are parameters of an individual observation
 data(Sonar)
 
+# pre-processing
+
 sonar_class = Sonar$Class
 ds_dim = dim(Sonar)
-B = matrix(Sonar[1 : ds_dim[1], 1 : ds_dim[2] - 1 ], ds_dim[2] -1 , ds_dim[1])
-B <- rownames(c(1:60))
-euclidian_norm <- function(vecs, ref_vec) { lapply(vecs, sqrt(sum((vecs - ref_vec)^2 ))) }
+B = data.matrix(Sonar)
+B = B[, c(1:ds_dim[2]- 1)]
 
-dist = euclidian_norm(B[1,], B[c(2:10),])
-a = 2:10
+# supplementary tools for distance computation
 
-B[1,]
-a= unlist(B[c(2:4),])
+euclidian_norm <- function(vecs, ref_vec) {sqrt(sum((vecs - ref_vec)^2 ))}
+
+dists <- function(x, ref_row) {
+  
+  ref_row = 1    
+  ref_vec = x[ref_row, ]
+  vecs = x[-ref_row, ]
+  
+  dists = apply(vecs, 1, FUN=euclidian_norm, ref_vec)
+  return (dists)
+  
+}
+
+# actual KNN
+
+kNNsingle <- function(a, B, Y, k){
+
+  classes = levels(Y)
+  dists = dists(B, a)
+  match_ind = order(dists, decreasing=FALSE)[1:k]
+  match_class = Y[match_ind]
+  decision = which.max(table(match_class))
+  result = classes[decision]
+  
+  return (result)
+  
+}
+
+kNN <- function(trainX, trainY, testX, k){
+  
+  mine_or_rock = apply(X=testX, MARGIN=1, FUN=kNNsingle, trainX=trainX, trainY=trainY, k=k)
+  return (mine_or_rock)
+  
+}
+
+
