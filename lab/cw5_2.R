@@ -7,11 +7,12 @@ coords.mx[1,] = pol$x
 coords.mx[2,] = pol$y
 
 plot(c(coords.mx[1,], coords.mx[1,1]), c(coords.mx[2,], coords.mx[2,1]), col="blue")
-lines(c(coords.mx[1,], coords.mx[1,1]), c(coords.mx[2,], coords.mx[2,1]), col="blue")
-threshold = 100
+#lines(c(coords.mx[1,], coords.mx[1,1]), c(coords.mx[2,], coords.mx[2,1]), col="blue")
+threshold = 50
 P = 0
+T = 10
 
-for (i in 1:1000) {
+for (i in 1:100000) {
   
   dists = sqrt(diff(coords.mx[1,])^2 + diff(coords.mx[1,])^2)
   cost = sum(dists)
@@ -25,7 +26,7 @@ for (i in 1:1000) {
   dists_new = sqrt(diff(tmp[1,])^2 + diff(tmp[1,])^2)
   cost_new = sum(dists_new)
   
-  delta = (cost - cost_new) / cost
+  # delta = (cost - cost_new) / cost
   beta = (cost - cost_new)
   
   
@@ -36,16 +37,21 @@ for (i in 1:1000) {
     coords.mx = tmp
     
   } else {
+
+    P = exp(beta / T)
+    criterium = runif(1) < P
     
-    P = exp(-delta / beta)
-    criteria = sample(1000, replace=TRUE) > P*100
-  }
-    
+    if (criterium) {
+      
+      print(c("old cost:", cost, "new cost", cost_new))
+      cost = cost_new
+      coords.mx = tmp
+      
+      }
+
+  } 
   
-  
-  
-  
-  
+  T = T * 0.9
 }
 
 
