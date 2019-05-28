@@ -1,66 +1,110 @@
 # travelling salesman problem 
 #mydata = read.csv("pol.cv")
-#plot.new()
-head(pol)
-coords.mx = matrix(rep(0, 2 * 25), 2, 25)
-coords.mx[1,] = pol$x
-coords.mx[2,] = pol$y
 
-plot(c(coords.mx[1,], coords.mx[1,1]), c(coords.mx[2,], coords.mx[2,1]), col="blue")
-#lines(c(coords.mx[1,], coords.mx[1,1]), c(coords.mx[2,], coords.mx[2,1]), col="blue")
-threshold = 50
-P = 0
-T = 10
-n_update = 0
+# simulation parameters
+nc = 24
+np = 10
+shuffle_time = 1000
+
+# initialization of coords lists
+
+coords_x = pol$x
+coords_y = pol$y
+coords_x = rep(list(c(coords_x[-4], coords_x[1])), np)
+coords_y = rep(list(c(coords_y[-4], coords_y[1])), np)
+
+# initialization of supplementary variables for city sequence
+P = rep(0, np) #probability
+T = 1 / 10^(seq(-2, 4, length.out = np))
+
+# compute initial cost for each column
+cost = rep(10000, np)
+tmp = rep(25, 10)
 
 for (i in 1:100000) {
   
-  dists = sqrt(diff(coords.mx[1,])^2 + diff(coords.mx[1,])^2)
-  cost = sum(dists)
+  # find new config
   
-  # switch order of two elements in coords.mx
-  sample_ind = sample(pol$X1, 2)
-  inv_sample_ind = c(sample_ind[2], sample_ind[1])
+  inds = lapply(tmp, FUN=shuffle_inds)
+  coords_x_new = mapply(shuffle_coords, coords_x, inds, SIMPLIFY = FALSE)
+  coords_y_new = mapply(shuffle_coords, coords_y, inds, SIMPLIFY = FALSE)
   
-  tmp = coords.mx
-  tmp[,sample_ind] = coords.mx[, inv_sample_ind]
-  dists_new = sqrt(diff(tmp[1,])^2 + diff(tmp[1,])^2)
-  cost_new = sum(dists_new)
+  # find new cost
+  tmp_x = lapply(coords_x_new, function(x) {sum(diff(x)^2)})
+  tmp_y = lapply(coords_y_new, function(x) {sum(diff(x)^2)})
+  new_tmp.sum = mapply(sum, tmp_x, tmp_y)
   
-  # delta = (cost - cost_new) / cost
+  
+  dists_new = sapply(new_tmp.sum, sqrt)
+  cost_new = sapply(dists_new, sum)
+
+  # update solution if new is better
+  # criterium no1: better score
   beta = (cost - cost_new)
+  arg1 = beta > 0
   
+  # in case of a worse score -> assign value depending on probability
+  P = exp(beta / T)
+  arg2 = runif(np) < P
   
-  if (beta > 0) {
-    n_update = n_update + 1
-    print(c("update no:", n_update, "old cost:", cost, "new cost", cost_new))
-    cost = cost_new
-    coords.mx = tmp
-    
-  } else {
-    
-    P = exp(beta / T)
-    criterium = runif(1) < P
-    
-    if (criterium) {
-      
-      n_update = n_update + 1
-      print(c("update no:", n_update, "old cost:", cost, "new cost", cost_new))
-      cost = cost_new
-      coords.mx = tmp
-      
-    }
-    
-  } 
+  # update solutions
   
-  T = T * 0.9
+  inds_update = (arg1 | arg2)
+  cost[inds_update] = cost_new[inds_update]
+  
+  coords_x[which(inds_update)] = coords_x_new[which(inds_update)]
+  coords_y[which(inds_update)] = coords_y_new[which(inds_update)]
+  
+  # if 1 in n iteration -> shuffle temperatures
+  
+  if (i%% shuffle_time){T = shuffle_solutions(T)}
+
+
 }
 
+#choose best solution
 
-lines(c(coords.mx[1,], coords.mx[1,1]), c(coords.mx[2,], coords.mx[2,1]), col="red")
+ind_best_solution = which.min(cost)
+best_solution = cost[ind_best_solution]
+
+# plot solution
+plot(coords_x[[ind_best_solution]], coords_y[[ind_best_solution]], col="blue")
+lines(coords_x[[ind_best_solution]], coords_y[[ind_best_solution]], col="red")
 
 
 
 
-#tras<- sample(tras); with(pol[c(tras, tras[1]),], sum(sqrt(diff(x)^2 + diff(y)^2))) -> lens
-#replicate(10000, tras<- sample(tras); with(pol[c(tras, tras[1]),], sum(sqrt(diff(x)^2 + diff(y)^2)))) -> lens
+
+############################################
+# SUPPLEMENTARY FUNCTIONS
+
+# function for switching two inds in a set
+
+shuffle_inds <- function(x){
+  
+ inds = sample(2:(x-1), 2)
+ return(inds)
+  
+}
+  
+  
+shuffle_coords <-function(x,y){
+    
+  inv_y = c(y[2], y[1])
+  x[inv_y] = x[y]
+  return (x)
+  
+}
+
+# shuffle function for swaping solutions between different temperature levels
+
+shuffle_solutions <- function(x){
+  
+  len = length(x)
+  inds = 1:len
+  shuffle_inds = sample(inds, len)
+  
+  x = x[shuffle_inds]
+  return (x)
+  
+}
