@@ -1,0 +1,6 @@
+#x <- factor(levels = c('True','False'))
+x <- rep(c('True','False'),2)
+data <- expand.grid(A=x, B=x, C=x, D=x, E=x)
+data <- cbind(data, Y1=(data$A != data$B))
+cbind(data, Y2=(data$A + data$B + data$C > 1))
+cbind(data$A, data$B, data$C)
